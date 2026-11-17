@@ -1,0 +1,11 @@
+# Local operations
+
+These commands support native Apple Silicon macOS with the dedicated `colima-firecrawl` Docker context. The API remains fixed to `http://127.0.0.1:3012`; authentication is disabled only behind that loopback boundary. They do not operate on another Docker context or open a network port publicly.
+
+`python3 local-ops/configure.py` prepares local secrets, search settings, pinned npm manifests and checkout metadata. It preserves existing secrets on rerun, prints no secrets, installs no software and starts no services. Then install the local MCP runtime with `npm ci --ignore-scripts --prefix .local-state/mcp`. See the repository README for prerequisites, image pulls and the first native build.
+
+Use `./local-ops/firecrawl-local --help` for reviewed image pulls, builds, readiness, scrape/map/crawl, logs, backup and safe stop/removal. `pull` downloads the pinned Redis, RabbitMQ and search images explicitly; `start` uses prebuilt images without implicitly pulling. Backups retain PostgreSQL, deployment metadata and Git-tracked source including local edits. Untracked files, credentials, installed runtimes and private state are excluded; explicitly track any new source you need included. Back up secrets separately using your own secure backup system.
+
+Launchd files are templates. `python3 local-ops/install-launchd.py stack` or `heartbeat` displays the rendered paths for review; repeat with `--install` only when ready to enable that agent. Heartbeat runs every two hours after installation. Optional local inference is configured by `setup-providers`, which requires the pinned native Ollama version and explicitly downloads its pinned local model. Basic page scraping does not require that model.
+
+The optional remote gateway needs your own HTTPS domain and routing. `configure.py --public-base https://crawl.example/firecrawl` writes its private configuration without creating a route or enabling it. Install its pinned dependencies with `npm ci --ignore-scripts --prefix .local-state/remote-gateway`, then use `remote/control.py install` only after the deployment boundary and rendered paths have been reviewed. It retains OAuth and the private raw API; no tunnel configuration is supplied or modified automatically.

@@ -1,0 +1,17 @@
+{
+  "searxng": {
+    "image": "searxng/searxng@sha256:048e613ce4a7ddc35dfb05a0b8ede795a054187b3c3b89518adc37d5e03a8297",
+    "arm64_manifest": "sha256:f51f098598dbc848affb1cb92ffbf7238857dd65abae485aa2f0a9b5b5c557cd"
+  },
+  "ollama": {
+    "version": "0.33.3",
+    "endpoint": "http://host.lima.internal:11435/api",
+    "model": "qwen2.5:3b",
+    "model_digest": "357c53fb659c5076de1d65ccb0b397446227b71a42be9d1603d46168015c9e4b",
+    "model_size_bytes": 1929912432,
+    "cloud_disabled": true,
+    "context_tokens": 8192,
+    "parallel": 1,
+    "keep_alive": "30s"
+  }
+}

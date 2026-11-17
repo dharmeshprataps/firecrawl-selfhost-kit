@@ -1,0 +1,7 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Keep binary PDF offsets and captured source inputs intact.
+*.pdf binary
+apps/api/src/lib/__fixtures__/screener-quarterly-captured.md -text -whitespace
+local-bench/fixtures/quarterly-results.html -text -whitespace

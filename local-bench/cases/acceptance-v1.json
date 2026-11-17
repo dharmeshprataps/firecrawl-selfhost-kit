@@ -1,0 +1,77 @@
+{
+  "suite": "acceptance-v1",
+  "revision": 2,
+  "deadline_seconds": 900,
+  "cases": [
+    {
+      "id": "static-markdown",
+      "kind": "scrape",
+      "path": "/static.html",
+      "expected_markers": [
+        "alpha-marker-7319",
+        "Feature Matrix",
+        "Feature",
+        "Status"
+      ],
+      "metadata": {
+        "title": "Deterministic Static Fixture",
+        "description": "A stable Firecrawl regression fixture."
+      }
+    },
+    {
+      "id": "javascript-render",
+      "kind": "scrape",
+      "path": "/javascript.html",
+      "wait_for_ms": 1200,
+      "expected_markers": [
+        "js-marker-4826"
+      ],
+      "forbidden_markers": [
+        "waiting-for-script"
+      ]
+    },
+    {
+      "id": "sitemap-map-v2",
+      "kind": "map",
+      "version": 2
+    },
+    {
+      "id": "sitemap-map-v1",
+      "kind": "map",
+      "version": 1
+    },
+    {
+      "id": "five-page-crawl",
+      "kind": "crawl"
+    },
+    {
+      "id": "reject-denied-host",
+      "kind": "reject",
+      "target": "denied-host"
+    },
+    {
+      "id": "reject-alternate-port",
+      "kind": "reject",
+      "target": "alternate-port"
+    },
+    {
+      "id": "reject-userinfo",
+      "kind": "reject",
+      "target": "userinfo"
+    },
+    {
+      "id": "redirect-denied-host",
+      "kind": "redirect",
+      "target": "denied-host"
+    },
+    {
+      "id": "redirect-alternate-port",
+      "kind": "redirect",
+      "target": "alternate-port"
+    },
+    {
+      "id": "browser-subresources",
+      "kind": "browser_security"
+    }
+  ]
+}

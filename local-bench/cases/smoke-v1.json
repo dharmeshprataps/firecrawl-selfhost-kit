@@ -1,0 +1,39 @@
+{
+  "suite": "smoke-v1",
+  "revision": 2,
+  "deadline_seconds": 300,
+  "cases": [
+    {
+      "id": "static-markdown",
+      "kind": "scrape",
+      "path": "/static.html",
+      "expected_markers": [
+        "alpha-marker-7319",
+        "Feature Matrix",
+        "Feature",
+        "Status"
+      ],
+      "metadata": {
+        "title": "Deterministic Static Fixture",
+        "description": "A stable Firecrawl regression fixture."
+      }
+    },
+    {
+      "id": "javascript-render",
+      "kind": "scrape",
+      "path": "/javascript.html",
+      "wait_for_ms": 1200,
+      "expected_markers": [
+        "js-marker-4826"
+      ],
+      "forbidden_markers": [
+        "waiting-for-script"
+      ]
+    },
+    {
+      "id": "sitemap-map-v2",
+      "kind": "map",
+      "version": 2
+    }
+  ]
+}

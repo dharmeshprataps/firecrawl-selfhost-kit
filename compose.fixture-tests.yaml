@@ -1,0 +1,13 @@
+# PRIVATE MANUAL ACCEPTANCE ONLY. This override permits one internal fixture
+# origin for deterministic tests, including redirects and browser subresources.
+# Stop the public remote gateway before adding this as the final Compose file.
+# Inspect the full merged configuration, run manual acceptance, then recreate
+# API and Playwright WITHOUT this override and verify both environment values
+# are empty before restarting the public gateway. Do not use for heartbeat.
+services:
+  api:
+    environment:
+      LOCAL_FIXTURE_ORIGIN: http://fixtures.firecrawl.test:8765
+  playwright-service:
+    environment:
+      LOCAL_FIXTURE_ORIGIN: http://fixtures.firecrawl.test:8765

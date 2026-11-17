@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+[[ "$(uname -s)" == Darwin && "$(uname -m)" == arm64 ]]
+for tool in git curl docker python3; do command -v "$tool" >/dev/null; done
+sw_vers
+sysctl -n hw.model hw.memsize
+free_kb=$(df -k /System/Volumes/Data | awk 'NR==2{print $4}')
+(( free_kb >= 15728640 )) || { echo 'Less than15GiB host free space'; exit 1; }
+docker compose version
+docker buildx version
+docker --context colima-firecrawl info --format '{{.Architecture}} {{.MemTotal}}'
+python3 "$(dirname "$0")/review-config.py"

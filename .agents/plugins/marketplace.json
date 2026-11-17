@@ -1,0 +1,10 @@
+{
+  "name": "firecrawl-selfhost-kit",
+  "interface": {"displayName": "Firecrawl Self-host Kit"},
+  "plugins": [{
+    "name": "local-web-crawler",
+    "source": {"source": "local", "path": "./local-plugin"},
+    "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+    "category": "Developer Tools"
+  }]
+}

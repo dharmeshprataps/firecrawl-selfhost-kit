@@ -1,0 +1,569 @@
+{
+  "source_ledger_sha256": "536f96390f80d99bcc3a6c67a90a5977f8b3b11d04033589dde8cfbd95e170c9",
+  "notes": "Verbatim local financial request arguments from user-supplied ledger; no response bodies.",
+  "requests": [
+    {
+      "request_id": "Q056",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "964f8d4a6c614da05789aa0fdf56beb608283f40c386fed4c611134cdd2a03de"
+    },
+    {
+      "request_id": "Q060",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000,
+        "includeTags": [
+          "section#quarters"
+        ]
+      },
+      "arguments_sha256_canonical": "697681e36167c6651f40ff3b3e442296152dabbc46c041462596656564a2f7ea"
+    },
+    {
+      "request_id": "Q078",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "6a5759664ea6a9cc145332e8f38545c89716ddc246373c718ad318691e29761f"
+    },
+    {
+      "request_id": "Q079",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000,
+        "includeTags": [
+          "section#quarters"
+        ]
+      },
+      "arguments_sha256_canonical": "824a02c97b95b260b77cc37bdb3de3010cc0eb47a7e1d30eee299d5780c964ed"
+    },
+    {
+      "request_id": "Q080",
+      "arguments": {
+        "url": "https://www.screener.in/company/TCS/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "63914720e439a2f7be1f4cc24b927ba759dec51fea8e27624bcdd3e110ffcfbd"
+    },
+    {
+      "request_id": "Q081",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Read the consolidated Quarterly Results table. Return the latest two quarters, newest first. Map each exact displayed period to label, its Sales cell in INR crores to turnover_crore, and its Net Profit cell in INR crores to profit_after_tax_crore. Return numbers, removing thousands separators. Do not use annual or TTM values, do not infer values, and use the requested keys exactly.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "rows": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "profit_after_tax_crore": {
+                      "type": "number",
+                      "description": "Net Profit for this quarter in INR crore"
+                    },
+                    "label": {
+                      "type": "string",
+                      "description": "Exact source quarter label"
+                    },
+                    "turnover_crore": {
+                      "type": "number",
+                      "description": "Sales for this quarter in INR crore"
+                    }
+                  },
+                  "required": [
+                    "profit_after_tax_crore",
+                    "label",
+                    "turnover_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "rows"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "8dc63c0975c893d86acec5322a09f95423688794b15cb4b45e0a3f8a7cb306cc"
+    },
+    {
+      "request_id": "Q082",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible Quarterly Results consolidated table. Return exactly the two latest quarters, newest first, with the exact period labels, Sales and Net Profit, both in INR crores as JSON numbers (remove thousands separators). Do not use the annual Profit & Loss table, TTM values or derived figures. For latest_quarter_auditor_fee_inr_crore return the fee only if the visible page explicitly states it for the latest quarter; otherwise return null. Do not infer missing figures or treat expenses as auditor fees. Also return latest_quarter_energy_cost_inr_crore as a required number only when that exact quarterly energy-cost figure is explicitly present. If absent, do not substitute total expenses or estimate it; report inability to satisfy the schema.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "latest_quarter_auditor_fee_inr_crore": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "latest_quarter_energy_cost_inr_crore": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "quarters",
+              "latest_quarter_auditor_fee_inr_crore",
+              "latest_quarter_energy_cost_inr_crore"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "a972b9fdea131ab1c70eb70042635cd0d6c5573f99113456b32156aaa23039f3"
+    },
+    {
+      "request_id": "Q083",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Read the consolidated Quarterly Results table. Return exactly the latest two quarters newest first, with period, sales_inr and net_profit_inr. Convert the source INR-crore values into INR rupees by multiplying by10000000. This request intentionally asks for a unit conversion; if unsupported, return an explicit error rather than crore values mislabeled as rupees.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr": {
+                      "type": "number"
+                    },
+                    "net_profit_inr": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr",
+                    "net_profit_inr"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "quarters"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "b575b425d93c4e0b8659d22d9211b33941f60a4188d67a34395400c66971ec53"
+    },
+    {
+      "request_id": "Q084",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract the latest two quarters from the consolidated Quarterly Results table, newest first. Keep the exact quarter text in period. The source reports Sales and Net Profit in crore rupees. Convert both amounts into rupees: one crore equals 10,000,000 rupees. Put converted rupee amounts in sales_inr and net_profit_inr. For example, a source cell of 2 crore must become 20000000 rupees. Do not return the unconverted crore values. If this conversion is unsupported, return an explicit unsupported error.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr": {
+                      "type": "number"
+                    },
+                    "net_profit_inr": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr",
+                    "net_profit_inr"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "quarters"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "ae9e1096695d795c63329747b8596a67147654538fbbb50f5d4300c4abccf90e"
+    },
+    {
+      "request_id": "Q085",
+      "arguments": {
+        "url": "https://www.screener.in/company/DIXON/consolidated/",
+        "formats": [
+          "markdown",
+          "json"
+        ],
+        "jsonOptions": {
+          "prompt": "Extract only from the visible consolidated Quarterly Results table. Return exactly the latest two quarters newest first. Each item must contain the exact source period label, sales_inr_crore from Sales, and net_profit_inr_crore from Net Profit. Keep source units INR crore. Remove commas from numbers. Do not use the annual table or TTM data. Return no fields other than those in the schema.",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "quarters": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "period": {
+                      "type": "string"
+                    },
+                    "sales_inr_crore": {
+                      "type": "number"
+                    },
+                    "net_profit_inr_crore": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "period",
+                    "sales_inr_crore",
+                    "net_profit_inr_crore"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "quarters"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "onlyMainContent": true,
+        "maxAge": 0,
+        "timeout": 45000
+      },
+      "arguments_sha256_canonical": "a9d8bd3473e6be2ddce93d5462c8bdc3d3013e34d367da113c7da96c22544134"
+    }
+  ]
+}

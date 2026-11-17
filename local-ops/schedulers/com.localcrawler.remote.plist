@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>FIRECRAWL_PUBLIC_BASE</key>
+		<string>__PUBLIC_BASE__</string>
+		<key>NODE_ENV</key>
+		<string>production</string>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>Label</key>
+	<string>com.localcrawler.remote</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/opt/homebrew/bin/node</string>
+		<string>--max-old-space-size=384</string>
+		<string>__CHECKOUT__/local-remote/gateway.mjs</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>__CHECKOUT__/.local-state/remote-gateway/gateway.err.log</string>
+	<key>StandardOutPath</key>
+	<string>__CHECKOUT__/.local-state/remote-gateway/gateway.out.log</string>
+	<key>ThrottleInterval</key>
+	<integer>30</integer>
+	<key>WorkingDirectory</key>
+	<string>__CHECKOUT__</string>
+</dict>
+</plist>

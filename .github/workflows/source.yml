@@ -1,0 +1,25 @@
+name: Source checks
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: 24
+      - name: Install locked gateway test dependencies
+        run: |
+          mkdir -p .local-state/remote-gateway
+          cp local-remote/package.json local-remote/package-lock.json .local-state/remote-gateway/
+          npm ci --ignore-scripts --prefix .local-state/remote-gateway
+      - name: Check source and regressions
+        run: python3 local-ops/check-source.py

@@ -1,0 +1,9 @@
+# Review and replace the absolute path before adding to your Codex configuration.
+[mcp_servers.firecrawl-local]
+command = "/absolute/path/to/firecrawl-selfhost-kit/local-plugin/bin/firecrawl-mcp"
+enabled_tools = ["local_web_read", "local_web_batch_scrape", "local_web_capabilities", "local_web_status", "firecrawl_scrape", "firecrawl_crawl", "firecrawl_check_crawl_status", "firecrawl_map", "firecrawl_search"]
+startup_timeout_sec = 30
+tool_timeout_sec = 180
+
+[mcp_servers.firecrawl-local.env]
+FIRECRAWL_API_URL = "http://127.0.0.1:3012"

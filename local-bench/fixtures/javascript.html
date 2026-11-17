@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>Deterministic JavaScript Fixture</title></head>
+  <body>
+    <main>
+      <h1>Deterministic JavaScript Fixture</h1>
+      <div id="result">waiting-for-script</div>
+    </main>
+    <script>
+      setTimeout(() => {
+        document.getElementById('result').textContent = 'js-marker-4826';
+      }, 250);
+    </script>
+  </body>
+</html>

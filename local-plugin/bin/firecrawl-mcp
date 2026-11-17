@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+expected=http://127.0.0.1:3012
+if [ "${FIRECRAWL_API_URL-$expected}" != "$expected" ]; then
+  echo 'Refusing API endpoint other than http://127.0.0.1:3012' >&2
+  exit 64
+fi
+plugin_root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+unset NODE_OPTIONS NODE_PATH NODE_TLS_REJECT_UNAUTHORIZED
+exec /opt/homebrew/bin/python3 "$plugin_root/bin/local-mcp.py"

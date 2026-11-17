@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+set -euo pipefail
+umask 077
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+ENV_FILE="$ROOT_DIR/.env.local"
+OVERRIDE_FILE="$ROOT_DIR/compose.override.yaml"
+API_URL="http://127.0.0.1:3012"
+CORE_SERVICES=(redis rabbitmq nuq-postgres fixtures searxng playwright-service api)
+
+die() { printf 'error: %s\n' "$*" >&2; exit 1; }
+need() { command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"; }
+
+compose() {
+  need docker
+  [[ -f "$ENV_FILE" ]] || die "missing $ENV_FILE (copy .env.local.example and generate secrets)"
+  [[ -f "$OVERRIDE_FILE" ]] || die "missing $OVERRIDE_FILE"
+  env -i HOME="$HOME" USER="${USER:-local-user}" PATH="$PATH" docker --context colima-firecrawl compose --project-name firecrawl --project-directory "$ROOT_DIR" --env-file "$ENV_FILE" \
+    -f "$ROOT_DIR/docker-compose.yaml" -f "$OVERRIDE_FILE" "$@"
+}
+
+json_value() {
+  local key="$1"
+  python3 -c 'import json,sys; print(json.load(sys.stdin).get(sys.argv[1], ""))' "$key"
+}
+
+wait_ready() {
+  local attempts="${1:-90}" i
+  for ((i=1; i<=attempts; i++)); do
+    if curl --fail --silent --show-error --max-time 3 "$API_URL/v0/health/readiness" >/dev/null 2>&1; then
+      printf 'Firecrawl is ready at %s\n' "$API_URL"
+      return 0
+    fi
+    sleep 2
+  done
+  die "readiness timed out; run '$0 logs api'"
+}
+
+cmd_start() {
+  python3 "$ROOT_DIR/local-ops/review-config.py"
+  launchctl kickstart "gui/$(id -u)/com.localcrawler.inference" >/dev/null 2>&1 || true
+  compose up -d --no-build --pull never "${CORE_SERVICES[@]}"
+  wait_ready
+}
+
+cmd_stop() { compose stop "${CORE_SERVICES[@]}"; }
+
+cmd_status() {
+  compose ps --all
+  printf '\nReadiness:\n'
+  curl --fail --silent --show-error --max-time 5 "$API_URL/v0/health/readiness" || true
+  printf '\n\nResource snapshot:\n'
+  compose stats --no-stream "${CORE_SERVICES[@]}" || true
+}
+
+cmd_logs() {
+  local service="${1:-}"
+  if [[ -n "$service" ]]; then
+    compose logs --tail="${LOG_TAIL:-200}" "$service" | python3 "$ROOT_DIR/local-ops/redact.py"
+  else
+    compose logs --tail="${LOG_TAIL:-200}" "${CORE_SERVICES[@]}" | python3 "$ROOT_DIR/local-ops/redact.py"
+  fi
+}
+
+cmd_scrape() {
+  local url="${1:-https://example.com}"
+  curl --fail --silent --show-error --max-time "${SCRAPE_TIMEOUT:-120}" \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"url":sys.argv[1],"formats":["markdown"]}))' "$url")" \
+    "$API_URL/v1/scrape"
+  printf '\n'
+}
+
+cmd_map() {
+  local url="${1:-https://example.com}"
+  curl --fail --silent --show-error --max-time "${MAP_TIMEOUT:-120}" \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"url":sys.argv[1],"limit":int(sys.argv[2]),"sitemap":"only","useIndex":False}))' "$url" "${MAP_LIMIT:-20}")" \
+    "$API_URL/v2/map"
+  printf '\n'
+}
+
+cmd_crawl() {
+  local url="${1:-https://example.com}" limit="${CRAWL_LIMIT:-5}" response id status
+  response="$(curl --fail --silent --show-error --max-time 30 \
+    -H 'Content-Type: application/json' \
+    --data "$(python3 -c 'import json,sys; print(json.dumps({"url":sys.argv[1],"limit":int(sys.argv[2]),"maxDepth":2,"scrapeOptions":{"formats":["markdown"]}}))' "$url" "$limit")" \
+    "$API_URL/v1/crawl")"
+  printf '%s\n' "$response"
+  id="$(printf '%s' "$response" | json_value id)"
+  [[ -n "$id" ]] || die "crawl response did not contain an id"
+  for _ in $(seq 1 "${CRAWL_POLLS:-90}"); do
+    response="$(curl --fail --silent --show-error --max-time 15 "$API_URL/v1/crawl/$id")"
+    status="$(printf '%s' "$response" | json_value status)"
+    case "$status" in
+      completed) printf '%s\n' "$response"; return 0 ;;
+      failed|cancelled) printf '%s\n' "$response"; return 1 ;;
+    esac
+    sleep 2
+  done
+  die "crawl $id did not reach a terminal state before timeout"
+}
+
+cmd_backup() {
+  local destination="${1:-$ROOT_DIR/backups}" stamp tmp
+  need gzip
+  mkdir -p "$destination"
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  tmp="$destination/.postgres-$stamp.sql.gz.tmp"
+  compose exec -T nuq-postgres sh -c \
+    'exec pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --no-owner --no-privileges' \
+    | gzip -9 >"$tmp"
+  mv "$tmp" "$destination/postgres-$stamp.sql.gz"
+  git -C "$ROOT_DIR" rev-parse HEAD >"$destination/source-$stamp.commit"
+  shasum -a 256 "$ROOT_DIR/compose.override.yaml" >"$destination/overlay-$stamp.sha256"
+  git -C "$ROOT_DIR" diff --binary HEAD -- >"$destination/source-working-tree-$stamp.patch"
+  python3 "$ROOT_DIR/local-ops/backup-overlay.py" "$destination/source-overlay-$stamp.tar.gz"
+  # Keep the backup manifest reproducible without expanding local secrets.
+  compose config --no-interpolate >"$destination/compose-$stamp.yaml"
+  chmod 600 "$destination/postgres-$stamp.sql.gz" "$destination/compose-$stamp.yaml"
+  printf 'Backup written to %s\n' "$destination/postgres-$stamp.sql.gz"
+}
+
+cmd_update() {
+  printf '%s\n' 'Updates require a separate pinned checkout, backup, reviewed overlay reapplication, migration review, native rebuild, and acceptance tests. This command preserves the installed source.'
+  return 2
+}
+cmd_rollback() {
+  printf '%s\n' 'Restore the reviewed previous source/overlay/images in a separate checkout; review database migration compatibility before restoring any backup. Automatic source switching is disabled.'
+  return 2
+}
+cmd_pull() {
+  python3 "$ROOT_DIR/local-ops/review-config.py"
+  compose pull redis rabbitmq searxng
+}
+cmd_build() {
+  python3 "$ROOT_DIR/local-ops/review-config.py"
+  for service in api playwright-service nuq-postgres fixtures; do
+    compose build --build-arg "GIT_SHA=$(git -C "$ROOT_DIR" rev-parse HEAD)" "$service"
+  done
+}
+cmd_uninstall() {
+  for label in com.localcrawler.remote com.localcrawler.stack com.localcrawler.heartbeat com.localcrawler.inference; do
+    launchctl bootout "gui/$(id -u)/$label" >/dev/null 2>&1 || true
+    launchctl disable "gui/$(id -u)/$label" >/dev/null 2>&1 || true
+  done
+  compose down --remove-orphans
+  printf 'Containers and the project network were removed. Persistent volumes and backups were preserved.\n'
+  printf 'Remote OAuth state was preserved. Remove any reverse-proxy or tunnel routes separately after reviewing your own configuration.\n'
+  printf 'To delete data intentionally, inspect volumes with: docker volume ls --filter label=com.docker.compose.project=firecrawl\n'
+}
+
+usage() {
+  cat <<'EOF'
+Usage: local-ops/firecrawl-local COMMAND [ARG]
+
+  pull                  Pull the reviewed prebuilt Redis, RabbitMQ and search images
+  build                 Build native images sequentially
+  review                Validate and summarize the private merged configuration
+  start                 Start prebuilt core services and wait for readiness
+  stop                  Stop core services without deleting data
+  restart               Stop, start, and verify readiness
+  status                Show services, readiness, and a resource snapshot
+  logs [SERVICE]        Show the last 200 log lines
+  scrape [URL]          Run a Markdown scrape (default: example.com)
+  map [URL]             Map up to MAP_LIMIT URLs (default: 20)
+  crawl [URL]           Crawl up to CRAWL_LIMIT pages (default: 5)
+  backup [DIR]          Dump PostgreSQL and deployment metadata
+  update                Show the reviewed manual update procedure
+  rollback              Show the reviewed manual rollback procedure
+  uninstall             Remove containers/network but preserve volumes/backups
+
+Endpoint, context, and deployment files are fixed for this installation.
+Optional limits: LOG_TAIL, SCRAPE_TIMEOUT, MAP_TIMEOUT, MAP_LIMIT, CRAWL_LIMIT, CRAWL_POLLS.
+EOF
+}
+
+case "${1:-}" in
+  pull) cmd_pull ;;
+  build) cmd_build ;;
+  review) python3 "$ROOT_DIR/local-ops/review-config.py" ;;
+  start) cmd_start ;;
+  stop) cmd_stop ;;
+  restart) cmd_stop; cmd_start ;;
+  status) cmd_status ;;
+  logs) cmd_logs "${2:-}" ;;
+  scrape) cmd_scrape "${2:-}" ;;
+  map) cmd_map "${2:-}" ;;
+  crawl) cmd_crawl "${2:-}" ;;
+  backup) cmd_backup "${2:-}" ;;
+  update) cmd_update "${2:-}" ;;
+  rollback) cmd_rollback ;;
+  uninstall) cmd_uninstall ;;
+  -h|--help|help|'') usage ;;
+  *) usage >&2; exit 2 ;;
+esac

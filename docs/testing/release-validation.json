@@ -1,0 +1,32 @@
+{
+  "kind": "public-source-release-verification",
+  "release": "0.1.0",
+  "testedAtUtc": "2026-11-17T18:42:37.668780+00:00",
+  "host": {
+    "os": "Darwin",
+    "architecture": "arm64"
+  },
+  "sourceCheck": {
+    "command": "python3 local-ops/check-source.py",
+    "status": "passed",
+    "frameworkTests": {
+      "configuration": 6,
+      "adapter": 51,
+      "maintenanceAndCorrectness": 22,
+      "nodeAuthBridgeGatewayMetrics": 51,
+      "total": 130
+    },
+    "groundingContracts": "additional fixture checks; counted separately from framework tests",
+    "log": "source-check.log"
+  },
+  "freshConfiguration": {
+    "status": "passed",
+    "rerunPreservesSecrets": true,
+    "mergedComposeReview": "passed",
+    "containersStarted": false
+  },
+  "fullNativeBuildFromPublicCheckout": "not run",
+  "liveScrapesFromPublicCheckout": "not run",
+  "liveMaintainerDeploymentChanged": false,
+  "note": "An initial restricted execution could not bind temporary loopback fixture ports. Re-running with loopback permission passed. This was a test-environment restriction; no production guard was disabled."
+}

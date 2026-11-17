@@ -1,0 +1,130 @@
+x-local-logging: &local-logging
+  driver: json-file
+  options: {max-size: "10m", max-file: "3"}
+services:
+  api:
+    platform: linux/arm64
+    restart: unless-stopped
+    ports: !override ["127.0.0.1:3012:3002"]
+    volumes: !reset []
+    environment:
+      NUQ_BACKEND: pg
+      FDB_CLUSTER_FILE: ""
+      NUQ_WORKER_COUNT: "2"
+      CRAWL_CONCURRENT_REQUESTS: "2"
+      MAX_CPU: "0.80"
+      MAX_RAM: "0.75"
+      USE_DB_AUTHENTICATION: "false"
+      NUQ_RABBITMQ_URL: "amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672"
+      LOCAL_FIXTURE_ORIGIN: ""
+      ALLOW_LOCAL_WEBHOOKS: "false"
+      OPENAI_API_KEY: ""
+      OPENAI_BASE_URL: ""
+      PDF_RUST_EXTRACT_ENABLE: "true"
+      OLLAMA_BASE_URL: http://host.lima.internal:11435/api
+      MODEL_NAME: qwen2.5:3b
+      AUTUMN_SECRET_KEY: ""
+      SLACK_WEBHOOK_URL: ""
+      TEST_API_KEY: ""
+      SUPABASE_ANON_TOKEN: ""
+      SUPABASE_URL: ""
+      SUPABASE_SERVICE_TOKEN: ""
+      SELF_HOSTED_WEBHOOK_URL: ""
+      PROXY_SERVER: ""
+      PROXY_USERNAME: ""
+      PROXY_PASSWORD: ""
+      SEARXNG_ENDPOINT: http://searxng:8080
+      SEARXNG_ENGINES: brave,duckduckgo,bing,google,wikipedia
+      SEARXNG_CATEGORIES: general
+    depends_on:
+      nuq-postgres: {condition: service_healthy}
+      fixtures: {condition: service_healthy}
+      searxng: {condition: service_healthy}
+    cpus: 2.5
+    mem_limit: 5G
+    memswap_limit: 5G
+    logging: *local-logging
+  playwright-service:
+    platform: linux/arm64
+    restart: unless-stopped
+    environment:
+      LOCAL_FIXTURE_ORIGIN: ""
+      ALLOW_LOCAL_WEBHOOKS: "false"
+      MAX_CONCURRENT_PAGES: "2"
+      BLOCK_MEDIA: "true"
+      PROXY_SERVER: ""
+      PROXY_USERNAME: ""
+      PROXY_PASSWORD: ""
+    cpus: 1.5
+    mem_limit: 3G
+    memswap_limit: 3G
+    logging: *local-logging
+  redis:
+    platform: linux/arm64
+    restart: unless-stopped
+    command: [redis-server, --bind, "0.0.0.0", --appendonly, "yes", --appendfsync, everysec]
+    volumes: [redis-data:/data]
+    logging: *local-logging
+  rabbitmq:
+    platform: linux/arm64
+    restart: unless-stopped
+    hostname: firecrawl-rabbitmq
+    environment:
+      RABBITMQ_NODENAME: rabbit@firecrawl-rabbitmq
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes: [rabbitmq-data:/var/lib/rabbitmq]
+    logging: *local-logging
+  nuq-postgres:
+    platform: linux/arm64
+    restart: unless-stopped
+    command: [postgres, -c, "cron.database_name=${POSTGRES_DB:-firecrawl}", -c, min_wal_size=256MB, -c, max_wal_size=1GB, -c, wal_buffers=16MB]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    logging: *local-logging
+  fixtures:
+    platform: linux/arm64
+    build: local-bench
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; assert b'alpha-marker-7319' in urllib.request.urlopen('http://127.0.0.1:8765/static.html',timeout=3).read()"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    networks:
+      backend:
+        aliases: [fixtures.firecrawl.test, fixtures-denied.firecrawl.test]
+    logging: *local-logging
+  searxng:
+    image: searxng/searxng@sha256:048e613ce4a7ddc35dfb05a0b8ede795a054187b3c3b89518adc37d5e03a8297
+    platform: linux/arm64
+    restart: unless-stopped
+    volumes: [./.local-state/searxng/settings.yml:/etc/searxng/settings.yml:ro]
+    environment:
+      SEARXNG_BASE_URL: http://searxng:8080/
+      SEARXNG_WORKERS: "1"
+      SEARXNG_THREADS: "4"
+    healthcheck:
+      test: [CMD, /usr/local/searxng/.venv/bin/python, -c, "import urllib.request; assert urllib.request.urlopen('http://127.0.0.1:8080/healthz',timeout=3).status==200"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks: [backend]
+    cpus: 0.75
+    mem_limit: 512M
+    memswap_limit: 512M
+    logging: *local-logging
+  foundationdb:
+    profiles: [foundationdb]
+  foundationdb-init:
+    profiles: [foundationdb]
+volumes:
+  postgres-data:
+  redis-data:
+  rabbitmq-data:

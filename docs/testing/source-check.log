@@ -1,0 +1,162 @@
+(node:61107) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file://${CHECKOUT}/apps/api/src/lib/grounded-quarterly.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to ${CHECKOUT}/apps/api/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Captured financial table: six exact facts grounded; missing and unsupported values rejected
+Financial unit contract: source cells and exact crore-to-rupee transformations verified; unsupported arithmetic/unsafe range rejected
+Exact report contract: nine original financial requests answered; unavailable energy cost rejected; nullable absence and both rupee prompts verified
+Overlay archive verified selection: 1792 source/configuration files; credentials and runtime excluded
+test_explicit_public_base_is_private_and_invalid_base_has_no_side_effects (test_public_configuration.PublicConfigurationTests.test_explicit_public_base_is_private_and_invalid_base_has_no_side_effects) ... ok
+test_fresh_configuration_is_private_local_and_rerun_preserves_secrets (test_public_configuration.PublicConfigurationTests.test_fresh_configuration_is_private_local_and_rerun_preserves_secrets) ... ok
+test_public_base_rejects_credentials_private_hosts_and_noncanonical_routes (test_public_configuration.PublicConfigurationTests.test_public_base_rejects_credentials_private_hosts_and_noncanonical_routes) ... ok
+test_source_backup_works_without_upstream_history_and_excludes_private_tracked_paths (test_public_configuration.PublicConfigurationTests.test_source_backup_works_without_upstream_history_and_excludes_private_tracked_paths) ... ok
+test_state_symlink_is_rejected_before_writing (test_public_configuration.PublicConfigurationTests.test_state_symlink_is_rejected_before_writing) ... ok
+test_templates_render_current_paths_and_no_missing_remote_value (test_public_configuration.PublicConfigurationTests.test_templates_render_current_paths_and_no_missing_remote_value) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.086s
+
+OK
+test_batch_retains_target_404_in_successful_api_envelope (test_companion_tools.AccuracyBoundaryTests.test_batch_retains_target_404_in_successful_api_envelope) ... ok
+test_explicit_expected_content_and_bounded_metadata (test_companion_tools.AccuracyBoundaryTests.test_explicit_expected_content_and_bounded_metadata) ... ok
+test_loading_table_and_missing_expected_content_are_incomplete (test_companion_tools.AccuracyBoundaryTests.test_loading_table_and_missing_expected_content_are_incomplete) ... ok
+test_populated_tables_and_loading_documentation_are_not_false_failures (test_companion_tools.AccuracyBoundaryTests.test_populated_tables_and_loading_documentation_are_not_false_failures) ... ok
+test_provider_error_keeps_machine_readable_code_and_http_status (test_companion_tools.AccuracyBoundaryTests.test_provider_error_keeps_machine_readable_code_and_http_status) ... ok
+test_two_batch_requests_overlap_and_five_urls_remain_ordered (test_companion_tools.AccuracyBoundaryTests.test_two_batch_requests_overlap_and_five_urls_remain_ordered) ... ok
+test_attribute_outage_has_one_local_attempt (test_companion_tools.CompanionTests.test_attribute_outage_has_one_local_attempt) ... ok
+test_attributes_empty_result_is_valid (test_companion_tools.CompanionTests.test_attributes_empty_result_is_valid) ... ok
+test_attributes_fixed_endpoint_and_output (test_companion_tools.CompanionTests.test_attributes_fixed_endpoint_and_output) ... ok
+test_bad_batch_options_fail_before_any_network_request (test_companion_tools.CompanionTests.test_bad_batch_options_fail_before_any_network_request) ... ok
+test_batch_defaults_preserve_the_existing_fresh_api_contract (test_companion_tools.CompanionTests.test_batch_defaults_preserve_the_existing_fresh_api_contract) ... ok
+test_batch_empty_markdown_fails_and_duplicates_are_deduplicated (test_companion_tools.CompanionTests.test_batch_empty_markdown_fails_and_duplicates_are_deduplicated) ... ok
+test_batch_is_parallel_bounded_and_partial (test_companion_tools.CompanionTests.test_batch_is_parallel_bounded_and_partial) ... ok
+test_batch_schema_exposes_bounded_controls_without_a_new_tool (test_companion_tools.CompanionTests.test_batch_schema_exposes_bounded_controls_without_a_new_tool) ... ok
+test_batch_validates_all_urls_before_request (test_companion_tools.CompanionTests.test_batch_validates_all_urls_before_request) ... ok
+test_bounded_batch_cache_and_timeout_options_forward_exactly (test_companion_tools.CompanionTests.test_bounded_batch_cache_and_timeout_options_forward_exactly) ... ok
+test_expected_content_beyond_batch_output_cap_is_explicitly_incomplete (test_companion_tools.CompanionTests.test_expected_content_beyond_batch_output_cap_is_explicitly_incomplete) ... ok
+test_expected_content_within_batch_output_cap_can_pass_without_hiding_full_checks (test_companion_tools.CompanionTests.test_expected_content_within_batch_output_cap_can_pass_without_hiding_full_checks) ... ok
+test_fresh_batch_preserves_explicit_zero_false_and_expected_content (test_companion_tools.CompanionTests.test_fresh_batch_preserves_explicit_zero_false_and_expected_content) ... ok
+test_invalid_selectors_fail_before_any_request (test_companion_tools.CompanionTests.test_invalid_selectors_fail_before_any_request) ... ok
+test_malformed_attribute_provider_response_fails (test_companion_tools.CompanionTests.test_malformed_attribute_provider_response_fails) ... ok
+test_public_url_and_top_level_argument_checks (test_companion_tools.CompanionTests.test_public_url_and_top_level_argument_checks) ... ok
+test_failed_operation_releases_capacity (test_dispatch.DispatchTests.test_failed_operation_releases_capacity) ... ok
+test_two_operations_overlap_and_queue_is_bounded (test_dispatch.DispatchTests.test_two_operations_overlap_and_queue_is_bounded) ... ok
+test_bounded_history_and_excerpt (test_local_tools.LocalToolTests.test_bounded_history_and_excerpt) ... ok
+test_error_preserves_last_success (test_local_tools.LocalToolTests.test_error_preserves_last_success) ... ok
+test_fixed_api_routes (test_local_tools.LocalToolTests.test_fixed_api_routes) ... ok
+test_limits_private_urls (test_local_tools.LocalToolTests.test_limits_private_urls) ... ok
+test_manual_creation_no_fetch (test_local_tools.LocalToolTests.test_manual_creation_no_fetch) ... ok
+test_paused_and_lock (test_local_tools.LocalToolTests.test_paused_and_lock) ... ok
+test_persistence_changes_delete (test_local_tools.LocalToolTests.test_persistence_changes_delete) ... ok
+test_batch_cache_controls_reach_the_companion_without_truthy_defaults (test_proxy_protocol.ProxyProtocolTests.test_batch_cache_controls_reach_the_companion_without_truthy_defaults) ... ok
+test_conflicting_and_malformed_pdf_options_are_typed_local_errors (test_proxy_protocol.ProxyProtocolTests.test_conflicting_and_malformed_pdf_options_are_typed_local_errors) ... ok
+test_local_operations_overlap_without_corrupting_rpc_ids (test_proxy_protocol.ProxyProtocolTests.test_local_operations_overlap_without_corrupting_rpc_ids) ... ok
+test_nested_crawl_pdf_limit_preserves_official_path (test_proxy_protocol.ProxyProtocolTests.test_nested_crawl_pdf_limit_preserves_official_path) ... ok
+test_partial_map_retains_useful_links_and_provider_diagnostics (test_proxy_protocol.ProxyProtocolTests.test_partial_map_retains_useful_links_and_provider_diagnostics) ... ok
+test_pdf_limit_enables_parser_before_official_sidecar_conversion (test_proxy_protocol.ProxyProtocolTests.test_pdf_limit_enables_parser_before_official_sidecar_conversion) ... ok
+test_readiness_extension_is_removed_before_the_pinned_sdk (test_proxy_protocol.ProxyProtocolTests.test_readiness_extension_is_removed_before_the_pinned_sdk) ... ok
+test_scrapes_without_pdf_options_do_not_change_parser_policy (test_proxy_protocol.ProxyProtocolTests.test_scrapes_without_pdf_options_do_not_change_parser_policy) ... ok
+test_typed_map_provider_failure_is_a_tool_error_not_invalid_argument (test_proxy_protocol.ProxyProtocolTests.test_typed_map_provider_failure_is_a_tool_error_not_invalid_argument) ... ok
+test_alias_screenshot_keeps_image_blocks_and_readiness (test_read_only_scrape.AliasProtocolTests.test_alias_screenshot_keeps_image_blocks_and_readiness) ... ok
+test_cached_catalog_calls_forward_and_out_of_order_ids_remain_independent (test_read_only_scrape.AliasProtocolTests.test_cached_catalog_calls_forward_and_out_of_order_ids_remain_independent) ... ok
+test_catalog_adds_alias_and_missing_base_fails_closed (test_read_only_scrape.AliasProtocolTests.test_catalog_adds_alias_and_missing_base_fails_closed) ... ok
+test_disabled_scrape_policy_disables_alias (test_read_only_scrape.AliasProtocolTests.test_disabled_scrape_policy_disables_alias) ... ok
+test_forwards_read_options_through_official_scrape_and_retains_metadata (test_read_only_scrape.AliasProtocolTests.test_forwards_read_options_through_official_scrape_and_retains_metadata) ... ok
+test_rejects_actions_and_unknown_nested_fields_without_upstream_dispatch (test_read_only_scrape.AliasProtocolTests.test_rejects_actions_and_unknown_nested_fields_without_upstream_dispatch) ... ok
+test_absent_or_malformed_upstream_base_is_not_fabricated (test_read_only_scrape.ReaderBoundaryTests.test_absent_or_malformed_upstream_base_is_not_fabricated) ... ok
+test_catalog_clones_only_reviewed_reads_and_preserves_output_schema (test_read_only_scrape.ReaderBoundaryTests.test_catalog_clones_only_reviewed_reads_and_preserves_output_schema) ... ok
+test_data_schema_keys_do_not_become_tool_options (test_read_only_scrape.ReaderBoundaryTests.test_data_schema_keys_do_not_become_tool_options) ... ok
+test_malformed_nested_shapes_and_primitives_fail_before_sdk (test_read_only_scrape.ReaderBoundaryTests.test_malformed_nested_shapes_and_primitives_fail_before_sdk) ... ok
+test_no_stateful_or_unknown_argument_can_be_silently_stripped (test_read_only_scrape.ReaderBoundaryTests.test_no_stateful_or_unknown_argument_can_be_silently_stripped) ... ok
+
+----------------------------------------------------------------------
+Ran 51 tests in 0.181s
+
+OK
+test_all_four_money_fields_convert_with_distinct_source_proof (test_correctness.CorrectnessTests.test_all_four_money_fields_convert_with_distinct_source_proof) ... ok
+test_ambiguous_conversion_is_a_typed_rejection_not_an_unscaled_success (test_correctness.CorrectnessTests.test_ambiguous_conversion_is_a_typed_rejection_not_an_unscaled_success) ... ok
+test_code_literal_operator_and_multiline_bracket_corruption_fail (test_correctness.CorrectnessTests.test_code_literal_operator_and_multiline_bracket_corruption_fail) ... ok
+test_converted_answer_requires_original_cell_and_exact_arithmetic_metadata (test_correctness.CorrectnessTests.test_converted_answer_requires_original_cell_and_exact_arithmetic_metadata) ... ok
+test_live_acceptance_builds_conversion_and_mixed_field_requests (test_correctness.CorrectnessTests.test_live_acceptance_builds_conversion_and_mixed_field_requests) ... ok
+test_loading_only_and_rendered_content_use_actual_connector_checks (test_correctness.CorrectnessTests.test_loading_only_and_rendered_content_use_actual_connector_checks) ... ok
+test_mixed_per_field_units_do_not_scale_unrequested_money_fields (test_correctness.CorrectnessTests.test_mixed_per_field_units_do_not_scale_unrequested_money_fields) ... ok
+test_negative_requires_typed_error_and_no_json (test_correctness.CorrectnessTests.test_negative_requires_typed_error_and_no_json) ... ok
+test_open_or_uncertain_gateway_fails_closed (test_correctness.CorrectnessTests.test_open_or_uncertain_gateway_fails_closed) ... ok
+test_pdf_claiming_two_pages_while_leaking_nine_fails (test_correctness.CorrectnessTests.test_pdf_claiming_two_pages_while_leaking_nine_fails) ... ok
+test_quarterly_wrong_old_column_and_unverified_values_fail (test_correctness.CorrectnessTests.test_quarterly_wrong_old_column_and_unverified_values_fail) ... ok
+test_stdout_does_not_echo_untrusted_exception_text (test_correctness.CorrectnessTests.test_stdout_does_not_echo_untrusted_exception_text) ... ok
+test_correctness_failure_still_restores_before_gateway_restart (test_fixture_runner.FixtureRunnerTests.test_correctness_failure_still_restores_before_gateway_restart) ... ok
+test_correctness_routes_only_after_fixture_guard_and_restores (test_fixture_runner.FixtureRunnerTests.test_correctness_routes_only_after_fixture_guard_and_restores) ... ok
+test_failed_restore_keeps_gateway_stopped (test_fixture_runner.FixtureRunnerTests.test_failed_restore_keeps_gateway_stopped) ... ok
+test_failed_runtime_guard_never_starts_gateway (test_fixture_runner.FixtureRunnerTests.test_failed_runtime_guard_never_starts_gateway) ... ok
+test_failed_suite_still_restores_production (test_fixture_runner.FixtureRunnerTests.test_failed_suite_still_restores_production) ... ok
+test_gateway_start_failure_is_not_reported_as_success (test_fixture_runner.FixtureRunnerTests.test_gateway_start_failure_is_not_reported_as_success) ... ok
+test_initially_stopped_gateway_remains_stopped (test_fixture_runner.FixtureRunnerTests.test_initially_stopped_gateway_remains_stopped) ... ok
+test_maintenance_lock_prevents_overlapping_operations (test_fixture_runner.FixtureRunnerTests.test_maintenance_lock_prevents_overlapping_operations) ... ok
+test_review_never_changes_services (test_fixture_runner.FixtureRunnerTests.test_review_never_changes_services) ... ok
+test_success_restores_and_checks_before_gateway_restart (test_fixture_runner.FixtureRunnerTests.test_success_restores_and_checks_before_gateway_restart) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 0.014s
+
+OK
+✔ path-aware metadata identifies the same issuer, resource, S256 and public client method (32.182916ms)
+✔ DCR accepts only exact documented ChatGPT callback and rejects unsafe client metadata (60.417167ms)
+✔ DCR enforces persistent registration rate limits and bounded client storage (1977.34575ms)
+✔ authorization requires a registered client, exact resource and redirect, code and S256 (26.24275ms)
+✔ owner consent requires secure cookie, same-origin request, CSRF, password and explicit approval (50.525375ms)
+✔ owner login lockout survives restart and expires after 15 minutes (86.999834ms)
+✔ cancel returns issuer-bound access_denied without creating an authorization code (22.596791ms)
+✔ code exchange binds PKCE, resource, client, redirect and consumes once only after valid PKCE (51.58225ms)
+✔ authorization codes expire after 180 seconds and flows expire after ten minutes (40.305084ms)
+✔ access survives restart, expires in one hour, and refresh is client/resource bound (54.14925ms)
+✔ rotating refresh tokens revoke the entire family on replay and expire after seven days (72.884375ms)
+✔ public-client revocation requires knowledge of token and matching client (48.380833ms)
+✔ private state stores hashes instead of bearer/code/password credentials (40.847ms)
+✔ malformed requests, duplicate parameters, unsupported grants and query credentials fail closed (26.5945ms)
+✔ stdio bridge initializes once and correlates independent tool calls (249.769042ms)
+✔ stdio deadline fails pending requests and allows clean child restart (216.54725ms)
+✔ stdio child exit rejects requests without exposing stderr (169.897916ms)
+✔ stdio response limit terminates an oversized child response (243.909791ms)
+✔ stdio pending request limit is global and bounded (161.985958ms)
+✔ remote access requires an explicit canonical HTTPS origin and fixed path (4.839584ms)
+✔ Docker runtime remains explicit and invokes an executable without a shell (2.586291ms)
+✔ public health is generic and raw REST is unavailable (54.778208ms)
+✔ MCP authenticates every method before parsing (1.756625ms)
+✔ host and browser origin are validated (10.905334ms)
+✔ gateway requires explicit public configuration matching its OAuth issuer (0.280125ms)
+✔ a configured nonstandard HTTPS port has an exact host and origin boundary (2.631417ms)
+✔ stateless initialization has truthful remote instructions (1.441083ms)
+✔ catalog preserves the exact reviewed eighteen tools and remote crawl cap (1.069ms)
+✔ unreviewed tools and arbitrary RPC methods cannot reach the bridge (1.236042ms)
+✔ tool calls preserve independent client RPC IDs (1.388291ms)
+✔ remote URL and crawl limits reject private fixture arguments (0.436209ms)
+✔ read-only reads retain public URL policy and reject interactive/provider options (4.213584ms)
+✔ read-only nested options reject hidden writes while JSON schema remains data (0.173625ms)
+✔ read-only full-format option values are checked before forwarding (0.234542ms)
+✔ read-only calls keep their tool identity, independent RPC IDs and local timings (0.774208ms)
+✔ invalid JSON, batches and oversized inputs are bounded (4006.057292ms)
+✔ authenticated GET and DELETE explicitly reject unsupported transport methods (4.317084ms)
+✔ HTTP and owner tool rate limits are enforced (8.179208ms)
+✔ two active tools and at most four queued calls per owner (108.278291ms)
+✔ a bounded longer queue admits all four slow reads without increasing execution capacity (198.662584ms)
+✔ queue expiry emits one failure record and does not dispatch expired work (33.03675ms)
+✔ tool deadlines and bridge errors return safe generic failures (29.394417ms)
+✔ oversized outputs are rejected before remote transmission (19.518875ms)
+✔ catalog drift fails closed (2.248292ms)
+✔ read-only catalog drift cannot mislabel an interactive tool as read-only (7.274041ms)
+✔ runtime public boundary requires both reviewed running services with fixtures explicitly disabled (0.544625ms)
+✔ gateway records queue and bridge timings without tool arguments (23.706375ms)
+✔ timing records cannot retain arguments, credentials or page contents (1.583334ms)
+✔ private timing log rotates within three bounded files (3.853375ms)
+✔ read-only reader timing identity is retained without page or credential data (0.073625ms)
+✔ queue outcomes retain only enumerated state and never error details (0.073625ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4591.927167
+Source syntax, tracked-source backup and local regression checks passed

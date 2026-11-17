@@ -1,0 +1,32 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "local-web-crawler",
+  "version": "0.3.3",
+  "description": "Local website research, extraction and manual change monitoring through a private Firecrawl deployment.",
+  "license": "AGPL-3.0-only",
+  "keywords": [
+    "firecrawl",
+    "scraping",
+    "crawling",
+    "local"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Local Web Crawler",
+        "shortDescription": "Local web crawling tools",
+        "longDescription": "Read and crawl websites through this Mac, with only verified local capabilities exposed. Manual monitors compare content hashes and short excerpts. No hosted agent, commercial enrichment or Cloud fallback.",
+        "category": "Developer Tools",
+        "capabilities": [],
+        "defaultPrompt": [
+          "Scrape this webpage into useful Markdown.",
+          "Map this site and identify its documentation pages.",
+          "Run a small bounded crawl and summarize the results."
+        ],
+        "logo": "./assets/local-web-crawler.svg",
+        "composerIcon": "./assets/local-web-crawler.svg"
+      },
+      "requires_local_executor": true
+    }
+  }
+}

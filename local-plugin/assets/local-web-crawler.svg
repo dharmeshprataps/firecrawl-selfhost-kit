@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Local Web Crawler</title>
+  <desc id="desc">A neutral network of connected pages inside a rounded square.</desc>
+  <rect width="512" height="512" rx="112" fill="#183044"/>
+  <path d="M142 156h228M142 256h228M142 356h228M156 142v228M256 142v228M356 142v228" stroke="#78C6D0" stroke-width="22" stroke-linecap="round" opacity=".72"/>
+  <circle cx="156" cy="156" r="42" fill="#F4F7F8"/>
+  <circle cx="356" cy="156" r="42" fill="#F4F7F8"/>
+  <circle cx="156" cy="356" r="42" fill="#F4F7F8"/>
+  <circle cx="356" cy="356" r="42" fill="#F4F7F8"/>
+  <circle cx="256" cy="256" r="58" fill="#F3B562"/>
+</svg>

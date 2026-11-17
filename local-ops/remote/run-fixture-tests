@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+"""Temporarily enable private fixtures with the public gateway stopped.
+
+Always restore the production API/browser configuration in finally. A gateway
+that was loaded before the test is restarted only after runtime isolation and
+the reviewed production configuration have both been checked again.
+"""
+import argparse
+import fcntl
+import json
+import os
+import socket
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+PYTHON = '/opt/homebrew/bin/python3'
+LABEL = 'com.localcrawler.remote'
+FIXTURE = 'http://fixtures.firecrawl.test:8765'
+ENV = {'HOME': str(Path.home()), 'PATH': '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'}
+COMPOSE = ['/opt/homebrew/bin/docker', '--context', 'colima-firecrawl', 'compose',
+           '--project-name', 'firecrawl', '--project-directory', str(ROOT),
+           '--env-file', str(ROOT / '.env.local'),
+           '-f', str(ROOT / 'docker-compose.yaml'), '-f', str(ROOT / 'compose.override.yaml')]
+FIXTURE_COMPOSE = COMPOSE + ['-f', str(ROOT / 'compose.fixture-tests.yaml')]
+
+
+def run(command, *, check=True, timeout=240):
+    result = subprocess.run(command, env=ENV, text=True, capture_output=True, timeout=timeout)
+    if check and result.returncode:
+        raise RuntimeError('Reviewed operation failed: ' + Path(command[0]).name)
+    return result
+
+
+def merged_fixture_review():
+    production = json.loads(run(COMPOSE + ['config', '--format', 'json']).stdout)
+    fixture = json.loads(run(FIXTURE_COMPOSE + ['config', '--format', 'json']).stdout)
+    for service in ('api', 'playwright-service'):
+        actual = fixture['services'][service]['environment']
+        if actual.get('LOCAL_FIXTURE_ORIGIN') != FIXTURE or actual.get('ALLOW_LOCAL_WEBHOOKS') != 'false':
+            raise RuntimeError('Private test override is not the reviewed exact origin')
+        if production['services'][service]['environment'].get('LOCAL_FIXTURE_ORIGIN') != '':
+            raise RuntimeError('Production fixture exception must be empty')
+        actual['LOCAL_FIXTURE_ORIGIN'] = ''
+    if fixture != production:
+        raise RuntimeError('Fixture override changes more than the two reviewed environment values')
+
+
+def runtime_fixture_value(expected):
+    marker = 'EXPECTED_FIXTURE_SETTING'
+    # Docker prints only a fixed marker for the allowlisted exact setting.
+    # No complete environment or interpolated Compose document is displayed.
+    template = '{{range .Config.Env}}{{if eq . "LOCAL_FIXTURE_ORIGIN=' + expected + '"}}' + marker + '{{end}}{{end}}'
+    for service in ('api', 'playwright-service'):
+        identifier = run(COMPOSE + ['ps', '-q', service]).stdout.strip()
+        if not identifier or '\n' in identifier:
+            raise RuntimeError('Expected one running ' + service + ' container')
+        result = run(['/opt/homebrew/bin/docker', '--context', 'colima-firecrawl',
+                      'inspect', '--format', template, identifier])
+        if result.stdout.strip() != marker:
+            raise RuntimeError('Runtime fixture isolation did not match for ' + service)
+
+
+def gateway_closed():
+    until = time.monotonic() + 10
+    while time.monotonic() < until:
+        try:
+            with socket.create_connection(('127.0.0.1', 3013), timeout=1):
+                pass
+        except OSError:
+            return
+        time.sleep(0.2)
+    raise RuntimeError('Public gateway listener remains open; fixtures were not enabled')
+
+
+def readiness():
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, *args, **kwargs):
+            return None
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    until = time.monotonic() + 180
+    while time.monotonic() < until:
+        try:
+            with opener.open('http://127.0.0.1:3012/v0/health/readiness', timeout=3) as response:
+                if response.status == 200 and json.loads(response.read(65536)).get('status') == 'ok':
+                    return
+        except (OSError, ValueError):
+            pass
+        time.sleep(2)
+    raise RuntimeError('Local API readiness deadline expired')
+
+
+def recreate(command):
+    run(command + ['up', '-d', '--no-deps', '--no-build', '--pull', 'never',
+                   '--force-recreate', 'playwright-service', 'api'])
+    readiness()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--suite', choices=['smoke', 'acceptance', 'core', 'extract', 'correctness'], default='acceptance')
+    parser.add_argument('--review', action='store_true', help='Review merged overrides and runtime isolation without stopping or changing services')
+    args = parser.parse_args()
+    os.umask(0o077)
+    state = ROOT / '.local-state' / 'remote-gateway'
+    state.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with (state / 'fixture-tests.lock').open('a+') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print('Another private fixture operation is running.', file=sys.stderr)
+            return 1
+        run([PYTHON, str(ROOT / 'local-ops/review-config.py')])
+        merged_fixture_review()
+        runtime_fixture_value('')
+        if args.review:
+            print('Production runtime and private fixture override review passed; no services changed.')
+            return 0
+        domain = 'gui/' + str(os.getuid())
+        was_loaded = run(['/bin/launchctl', 'print', domain + '/' + LABEL], check=False).returncode == 0
+        control = [PYTHON, str(ROOT / 'local-ops/remote/control.py')]
+        tests_ok = False
+        restore_ok = False
+        gateway_stopped = False
+        try:
+            print('Stopping the public gateway before enabling private fixture tests.', flush=True)
+            run(control + ['stop'])
+            gateway_closed()
+            gateway_stopped = True
+            recreate(FIXTURE_COMPOSE)
+            runtime_fixture_value(FIXTURE)
+            if args.suite in ('smoke', 'acceptance'):
+                command = [PYTHON, str(ROOT / 'local-bench/heartbeat.py'), '--config',
+                           str(ROOT / ('local-bench/cases/' + ('smoke-v1.json' if args.suite == 'smoke' else 'acceptance-v1.json')))]
+            elif args.suite == 'correctness':
+                command = [PYTHON, str(ROOT / 'local-bench/correctness.py'), '--guarded-run']
+            else:
+                command = [PYTHON, str(ROOT / 'local-bench/enhancement.py'), '--suite', args.suite]
+            result = run(command, check=False, timeout=600)
+            tests_ok = result.returncode == 0
+            print('Private fixture suite ' + args.suite + ': ' + ('passed' if tests_ok else 'failed') + '.', flush=True)
+        except (Exception, KeyboardInterrupt):
+            print('Private fixture operation interrupted or failed; restoring production.', file=sys.stderr, flush=True)
+        finally:
+            if gateway_stopped:
+                try:
+                    recreate(COMPOSE)
+                    runtime_fixture_value('')
+                    run([PYTHON, str(ROOT / 'local-ops/review-config.py')])
+                    run([PYTHON, str(ROOT / 'local-bench/production-heartbeat.py')])
+                    fcntl.flock(lock, fcntl.LOCK_UN)
+                    if was_loaded:
+                        run(control + ['start'])
+                    restore_ok = True
+                    print('Production isolation restored; public gateway ' + ('restarted.' if was_loaded else 'remains stopped.'), flush=True)
+                except (Exception, KeyboardInterrupt):
+                    # Do not restart or expose the gateway on uncertain isolation.
+                    try:
+                        run(control + ['stop'], check=False)
+                        gateway_closed()
+                        message = 'The public gateway remains stopped.'
+                    except (Exception, KeyboardInterrupt):
+                        message = 'The public gateway state could not be confirmed.'
+                    print('Production restoration could not be verified. ' + message + ' Inspect the local services before starting it.', file=sys.stderr, flush=True)
+            else:
+                restore_ok = True  # The fixture override was never enabled.
+        return 0 if tests_ok and restore_ok else 1
+
+
+if __name__ == '__main__':
+    try:
+        raise SystemExit(main())
+    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError):
+        print('Fixture test preflight failed; no fixture override was enabled.', file=sys.stderr)
+        raise SystemExit(1)

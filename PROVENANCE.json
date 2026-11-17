@@ -1,0 +1,21 @@
+{
+  "project": "Firecrawl Self-host Kit",
+  "release": "0.1.0",
+  "upstream": {
+    "repository": "https://github.com/firecrawl/firecrawl",
+    "version": "v2.11.162",
+    "commit": "7666c1f9ae8720a6bba271e0f60b6a217f8a5210",
+    "rootLicense": "GNU Affero General Public License v3.0",
+    "rootLicenseSha256": "9b4649365c4f29d8f41301f4cda1e5bd9da51cf1bbb19ab9d568ff57d56e3b33"
+  },
+  "officialMcp": {
+    "package": "firecrawl-mcp",
+    "version": "3.36.1",
+    "referenceCommit": "6bd077c69a0143f03de93687f5f8bb8477944845",
+    "installation": "Separate npm dependency installed from committed package-lock.json"
+  },
+  "distribution": "Full source snapshot with curated modifications; independent clean Git history",
+  "supportedDeployment": "Native Apple Silicon macOS / linux-arm64 containers",
+  "modifications": "MODIFICATIONS.md",
+  "validation": "docs/testing/release-validation.json"
+}

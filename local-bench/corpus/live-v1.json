@@ -1,0 +1,13 @@
+{
+  "corpus": "live-v1",
+  "revision": 1,
+  "default_enabled": false,
+  "entries": [],
+  "admission_requirements": [
+    "robots policy reviewed",
+    "terms status recorded",
+    "no authentication or paywall",
+    "page and depth caps assigned",
+    "minimum per-domain interval assigned"
+  ]
+}

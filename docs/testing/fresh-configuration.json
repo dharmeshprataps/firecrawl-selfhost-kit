@@ -1,0 +1,25 @@
+{
+  "fresh_checkout_configuration": "passed",
+  "secrets_retained_on_rerun": true,
+  "private_file_permissions_verified_by_review": true,
+  "merged_compose_review": {
+    "review": "passed",
+    "services": [
+      "api",
+      "fixtures",
+      "nuq-postgres",
+      "playwright-service",
+      "rabbitmq",
+      "redis",
+      "searxng"
+    ],
+    "endpoint": "http://127.0.0.1:3012",
+    "queue": "pg",
+    "api_bytes": 5368709120,
+    "browser_bytes": 3221225472,
+    "fixture_exception": "disabled in production",
+    "secrets": "private, generated"
+  },
+  "containers_started": false,
+  "live_installation_changed": false
+}

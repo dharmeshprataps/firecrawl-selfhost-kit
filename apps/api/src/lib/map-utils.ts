@@ -1,0 +1,462 @@
+import { config } from "../config";
+import { v7 as uuidv7 } from "uuid";
+import {
+  TeamFlags,
+  MapDocument,
+  scrapeOptions,
+  ScrapeOptions,
+  MAX_MAP_LIMIT,
+} from "../controllers/v2/types";
+import { crawlToCrawler, StoredCrawl } from "./crawl-redis";
+import { getScrapeZDR } from "./zdr-helpers";
+import {
+  checkAndUpdateURLForMap,
+  isSameDomain,
+  isSameSubdomain,
+  resolveRedirects,
+} from "./validateUrl";
+import { fireEngineMap } from "../search/fireEngine";
+import { SearchProviderError } from "../search/searxngClient";
+import { discoverMapLinks } from "../search/localMapLinks";
+import { redisEvictConnection } from "../services/redis";
+import {
+  generateURLSplits,
+  queryIndexAtDomainSplitLevelWithMeta,
+  queryIndexAtSplitLevelWithMeta,
+} from "../services/index";
+import { performCosineSimilarityV2 } from "./map-cosine";
+import { Logger } from "winston";
+
+// Max Links that "Smart /map" can return
+const MAX_FIRE_ENGINE_RESULTS = 100;
+
+export interface MapResult {
+  success: boolean;
+  job_id: string;
+  time_taken: number;
+  mapResults: MapDocument[];
+  partial?: boolean;
+  warning?: string;
+  discoveryError?: { code: string; status: number };
+}
+
+function dedupeMapDocumentArray(documents: MapDocument[]): MapDocument[] {
+  const urlMap = new Map<string, MapDocument>();
+
+  for (const doc of documents) {
+    const existing = urlMap.get(doc.url);
+
+    if (!existing) {
+      urlMap.set(doc.url, doc);
+    } else if (doc.title !== undefined && existing.title === undefined) {
+      urlMap.set(doc.url, doc);
+    }
+  }
+
+  return Array.from(urlMap.values());
+}
+
+async function queryIndex(
+  url: string,
+  limit: number,
+  useIndex: boolean,
+  includeSubdomains: boolean,
+): Promise<MapDocument[]> {
+  if (!useIndex) {
+    return [];
+  }
+
+  const urlSplits = generateURLSplits(url);
+  if (urlSplits.length === 1) {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname;
+
+    // TEMP: this should be altered on June 15th 2025 7AM PT - mogery
+    const [domainLinks, splitLinks] = await Promise.all([
+      includeSubdomains
+        ? queryIndexAtDomainSplitLevelWithMeta(hostname, limit)
+        : [],
+      queryIndexAtSplitLevelWithMeta(url, limit),
+    ]);
+
+    return dedupeMapDocumentArray([...domainLinks, ...splitLinks]);
+  } else {
+    return await queryIndexAtSplitLevelWithMeta(url, limit);
+  }
+}
+
+export async function getMapResults({
+  url,
+  search,
+  limit = MAX_MAP_LIMIT,
+  includeSubdomains = true,
+  crawlerOptions = {},
+  teamId,
+  orgId,
+  allowExternalLinks,
+  abort = new AbortController().signal,
+  filterByPath = true,
+  flags,
+  useIndex = true,
+  ignoreCache = false,
+  location,
+  headers,
+  maxFireEngineResults = MAX_FIRE_ENGINE_RESULTS,
+  id: providedId,
+}: {
+  url: string;
+  search?: string;
+  limit?: number;
+  includeSubdomains?: boolean;
+  crawlerOptions?: any;
+  teamId: string;
+  orgId?: string | null;
+  origin?: string;
+  includeMetadata?: boolean;
+  allowExternalLinks?: boolean;
+  abort?: AbortSignal;
+  mock?: string;
+  filterByPath?: boolean;
+  flags: TeamFlags | null;
+  useIndex?: boolean;
+  ignoreCache?: boolean;
+  location?: ScrapeOptions["location"];
+  headers?: Record<string, string>;
+  maxFireEngineResults?: number;
+  id?: string;
+}): Promise<MapResult> {
+  const functionStartTime = Date.now();
+
+  const resolvedUrl = await resolveRedirects(url, abort);
+
+  // If the resolved URL is on a different domain, replace the hostname
+  if (!isSameDomain(url, resolvedUrl)) {
+    const urlObj = new URL(url);
+    urlObj.hostname = new URL(resolvedUrl).hostname;
+
+    url = urlObj.toString();
+  }
+
+  const id = providedId ?? uuidv7();
+  let mapResults: MapDocument[] = [];
+  let providerError: SearchProviderError | undefined;
+  let htmlFallback = false;
+  const zeroDataRetention = getScrapeZDR(flags) === "forced" || false;
+
+  const sc: StoredCrawl = {
+    originUrl: url,
+    crawlerOptions: {
+      ...crawlerOptions,
+      ...(config.SEARXNG_ENDPOINT ? { allowSubdomains: includeSubdomains, ...(!filterByPath ? { allowBackwardCrawling: true } : {}) } : {}),
+      limit: crawlerOptions.sitemapOnly ? 10000000 : limit,
+      scrapeOptions: undefined,
+    },
+    scrapeOptions: scrapeOptions.parse({
+      ...(location ? { location } : {}),
+      ...(headers ? { headers } : {}),
+    }),
+    internalOptions: { teamId, orgId: orgId ?? null },
+    team_id: teamId,
+    createdAt: Date.now(),
+    zeroDataRetention,
+  };
+
+  const crawler = crawlToCrawler(id, sc, flags);
+
+  try {
+    sc.robots = await crawler.getRobotsTxt(false, abort);
+    crawler.importRobotsTxt(sc.robots);
+  } catch (_) {
+    // Robots.txt fetch failed, continue without it
+  }
+
+  // If sitemapOnly is true, only get links from sitemap
+  if (crawlerOptions.sitemap === "only") {
+    const sitemap = await crawler.tryGetSitemap(
+      urls => {
+        urls.forEach(x => {
+          mapResults.push({
+            url: x,
+          });
+        });
+      },
+      true,
+      true,
+      crawlerOptions.timeout ?? 30000,
+      abort,
+      crawlerOptions.useMock,
+      ignoreCache ? 0 : undefined,
+    );
+
+    if (sitemap > 0) {
+      mapResults = mapResults
+        .map(x => {
+          try {
+            return {
+              ...x,
+              url: checkAndUpdateURLForMap(x.url).url.trim(),
+            };
+          } catch (_) {
+            return null;
+          }
+        })
+        .filter(x => x !== null) as MapDocument[];
+    }
+  } else {
+    let urlWithoutWww = url.replace("www.", "");
+    let mapUrl =
+      search && allowExternalLinks
+        ? `${search} ${urlWithoutWww}`
+        : search
+          ? `${search} site:${urlWithoutWww}`
+          : `site:${url}`;
+
+    const resultsPerPage = 100;
+    const maxPages = Math.ceil(
+      Math.min(maxFireEngineResults, limit) / resultsPerPage,
+    );
+
+    const providerCache = config.SEARXNG_ENDPOINT ? `searxng-v2:${config.SEARXNG_ENDPOINT}:${config.SEARXNG_ENGINES ?? ""}:${config.SEARXNG_CATEGORIES ?? ""}` : "fireEngineMap";
+    const cacheKey = `${providerCache}:${mapUrl}`;
+    const cachedResult = ignoreCache
+      ? null
+      : await redisEvictConnection.get(cacheKey);
+
+    const fetchPage = async (page: number) => {
+      return await fireEngineMap(
+        mapUrl,
+        {
+          numResults: config.SEARXNG_ENDPOINT ? Math.min(resultsPerPage, limit) : resultsPerPage,
+          page,
+          mapScope: url,
+        },
+        abort,
+      );
+    };
+
+    const fetchAllPages = async (): Promise<any[]> => {
+      if (cachedResult) {
+        return JSON.parse(cachedResult);
+      }
+      // if page 1 has no results, don't fetch remaining pages
+      const page1Result = await fetchPage(1);
+      if (!page1Result || page1Result.length === 0 || maxPages === 1) {
+        return [page1Result];
+      }
+      const remainingPages = await Promise.all(
+        Array.from({ length: maxPages - 1 }, (_, i) => fetchPage(i + 2)),
+      );
+      return [page1Result, ...remainingPages];
+    };
+
+    // An unavailable search engine must not discard independent sitemap discovery.
+    const sitemapResults: MapDocument[] = [];
+    const sitemapWork = crawlerOptions.sitemap === "include" ? crawler.tryGetSitemap(
+      urls => { sitemapResults.push(...urls.map(x => ({ url: x }))); },
+      true, false, crawlerOptions.timeout ?? 30000, abort, undefined, ignoreCache ? 0 : undefined,
+    ).catch(() => undefined) : Promise.resolve();
+    const [indexResults, searchResults] = await Promise.all([
+      queryIndex(url, limit, useIndex, includeSubdomains),
+      fetchAllPages().catch(error => {
+        if (!config.SEARXNG_ENDPOINT || !(error instanceof SearchProviderError)) throw error;
+        providerError = error;
+        return [];
+      }),
+      sitemapWork,
+    ]);
+
+    // Never cache a provider failure as an empty, successful map.
+    if (!zeroDataRetention && !providerError) {
+      await redisEvictConnection.set(cacheKey, JSON.stringify(searchResults), "EX", config.SEARXNG_ENDPOINT ? 600 : 48 * 60 * 60);
+    }
+    mapResults.push(...indexResults, ...sitemapResults);
+
+    if (search) {
+      mapResults = searchResults
+        .flat()
+        .map<MapDocument>(
+          x =>
+            ({
+              url: x.url,
+              title: x.title,
+              description: x.description,
+            }) satisfies MapDocument,
+        )
+        .concat(mapResults);
+    } else {
+      mapResults = mapResults.concat(
+        searchResults.flat().map(x => ({
+          url: x.url,
+          title: x.title,
+          description: x.description,
+        })),
+      );
+    }
+
+    const inRequestedScope = (candidate: string): boolean => {
+      try {
+        if (!isSameDomain(candidate, url) || (!includeSubdomains && !isSameSubdomain(candidate, url))) return false;
+        if (!filterByPath || allowExternalLinks) return true;
+        const prefix = new URL(url).pathname.replace(/\/$/, "");
+        const path = new URL(candidate).pathname;
+        return !prefix || path === prefix || path.startsWith(prefix + "/");
+      } catch { return false; }
+    };
+    // Count the same canonical URLs that survive the final scope/dedup pass.
+    // Search duplicates, query variants and out-of-scope links cannot fill the
+    // requested inventory and must not prevent this single seed-page read.
+    const usableUrls = new Set<string>();
+    for (const item of mapResults) {
+      try {
+        const canonical = checkAndUpdateURLForMap(
+          item.url,
+          crawlerOptions.ignoreQueryParameters ?? true,
+        ).url.trim();
+        if (inRequestedScope(canonical)) usableUrls.add(canonical);
+      } catch { /* Invalid discovery URLs do not count toward the limit. */ }
+    }
+    const usableCount = usableUrls.size;
+    // Unfiltered local inventories may supplement an underfilled successful
+    // search. Explicit filtered searches retain their existing fallback policy.
+    if (config.SEARXNG_ENDPOINT && (providerError || usableCount === 0 || !search) && usableCount < limit) {
+      try {
+        // Respect the crawler's robots/exclusion policy for this read and its links.
+        const seedPermission = await crawler.filterURL(url, url);
+        if (seedPermission.allowed) {
+          const discovered = await discoverMapLinks({
+            url, limit, includeSubdomains, filterByPath: filterByPath && !allowExternalLinks,
+            signal: abort, headers, extractLinks: (html, base) => crawler.extractLinksFromHTML(html, base),
+          });
+          htmlFallback = discovered.length > 0;
+          mapResults.push(...discovered);
+        }
+      } catch (error) { if (abort.aborted) throw error; }
+    }
+
+    if (search) {
+      const searchQuery = search.toLowerCase();
+      mapResults = performCosineSimilarityV2(mapResults, searchQuery);
+    }
+  }
+
+  mapResults = mapResults
+    .map(x => {
+      try {
+        return {
+          ...x,
+          url: checkAndUpdateURLForMap(
+            x.url,
+            crawlerOptions.ignoreQueryParameters ?? true,
+          ).url.trim(),
+        };
+      } catch (_) {
+        return null;
+      }
+    })
+    .filter(x => x !== null) as MapDocument[];
+
+  mapResults = mapResults.filter(x => isSameDomain(x.url, url));
+
+  if (!includeSubdomains) {
+    mapResults = mapResults.filter(x => isSameSubdomain(x.url, url));
+  }
+
+  if (filterByPath && !allowExternalLinks) {
+    try {
+      const urlObj = new URL(url);
+      const urlPath = urlObj.pathname;
+      // Only apply path filtering if the URL has a significant path (not just '/' or empty)
+      // This means we only filter by path if the user has not selected a root domain
+      if (urlPath && urlPath !== "/" && urlPath.length > 1) {
+        mapResults = mapResults.filter(x => {
+          try {
+            const linkObj = new URL(x.url);
+            const prefix = urlPath.replace(/\/$/, "");
+            return linkObj.pathname === prefix || linkObj.pathname.startsWith(prefix + "/");
+          } catch (e) {
+            return false;
+          }
+        });
+      }
+    } catch (e) {
+      // If URL parsing fails, continue without path filtering
+    }
+  }
+
+  mapResults = dedupeMapDocumentArray(mapResults);
+  mapResults = mapResults.slice(0, limit);
+
+  if (providerError && mapResults.length === 0) throw providerError;
+
+  const totalTimeMs = Date.now() - functionStartTime;
+
+  return {
+    success: true,
+    mapResults,
+    job_id: id,
+    time_taken: totalTimeMs,
+    ...(providerError ? { partial: true, warning: "Search provider unavailable; returning verified sitemap/page links only.", discoveryError: { code: providerError.code, status: providerError.status } } :
+      htmlFallback ? { partial: true, warning: "Search/sitemap discovery was incomplete; returning available results with bounded links found on the requested page." } : {}),
+  };
+}
+
+export async function buildPromptWithWebsiteStructure({
+  basePrompt,
+  url,
+  teamId,
+  orgId,
+  flags,
+  logger,
+  limit = 50,
+  includeSubdomains = true,
+  allowExternalLinks = false,
+  useIndex = true,
+  maxFireEngineResults = 500,
+}: {
+  basePrompt: string;
+  url: string;
+  teamId: string;
+  orgId?: string | null;
+  flags: TeamFlags | null;
+  logger: Logger;
+  limit?: number;
+  includeSubdomains?: boolean;
+  allowExternalLinks?: boolean;
+  useIndex?: boolean;
+  maxFireEngineResults?: number;
+}): Promise<{ prompt: string; websiteUrls: string[] }> {
+  try {
+    logger.debug("Getting website structure for prompt enhancement");
+    const mapResult = await getMapResults({
+      url,
+      limit,
+      includeSubdomains,
+      crawlerOptions: { sitemap: "include" },
+      teamId,
+      orgId: orgId ?? null,
+      flags,
+      allowExternalLinks,
+      filterByPath: false,
+      useIndex,
+      maxFireEngineResults,
+    });
+
+    const websiteUrls = mapResult.mapResults.map(doc => doc.url);
+    logger.debug("Found website URLs for prompt enhancement", {
+      urlCount: websiteUrls.length,
+      sampleUrls: websiteUrls.slice(0, 5),
+    });
+
+    const prompt = `${basePrompt}\n\n--- WEBSITE STRUCTURE ---\nThe website has the following URL structure (${websiteUrls.length} URLs found, here is a sample of the first ${Math.min(
+      120,
+      websiteUrls.length,
+    )} URLs):\n${websiteUrls.slice(0, 120).join("\n")}\n\nBased on this structure and the user's request, generate appropriate crawler options.`;
+
+    return { prompt, websiteUrls };
+  } catch (e) {
+    logger.warn("Failed to get website structure for prompt enhancement", {
+      error: (e as any)?.message ?? e,
+    });
+    return { prompt: basePrompt, websiteUrls: [] };
+  }
+}

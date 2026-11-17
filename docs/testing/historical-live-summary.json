@@ -1,0 +1,147 @@
+{
+  "kind": "sanitized-historical-live-summary",
+  "measuredDate": "2026-11-16",
+  "scope": "Maintainer deployment before public portability changes; these are historical observations, not a fresh public-release benchmark. No hosted comparisons were rerun for this source release.",
+  "originalBenchmark": {
+    "attempts": 108,
+    "localOperations": 62,
+    "hostedOperations": 46,
+    "corpusPagesPerService": 14,
+    "localUsefulContentPasses": 11,
+    "localPartial": 1,
+    "localFailed": 2,
+    "hostedUsefulContentPasses": 14,
+    "financialRawCellsCompared": 103,
+    "note": "The original extraction/unit/PDF defects motivated the included correctness regressions; these counts describe the older implementation."
+  },
+  "rerun": {
+    "attempts": 109,
+    "hostedQuotaBlockedAttempts": 4,
+    "localUseful": 11,
+    "localPartial": 1,
+    "localFailed": 2,
+    "hostedUseful": 13,
+    "hostedPartial": 1,
+    "hostedFailed": 0,
+    "note": "PDF limits, code preservation, per-page batch failures and loading-only detection improved; the original individual-call path and financial conversions still had defects at this stage."
+  },
+  "newReadOnlyReaderAfterFixes": {
+    "independentCalls": 4,
+    "contentPasses": 4,
+    "expectedContentChecksPassed": 8,
+    "callerWaveMs": 13756,
+    "gatewaySpanMs": 10883,
+    "ingressOverlapPeak": 4,
+    "serviceOverlapPeak": 2,
+    "successfulQueuedCallMs": 5571,
+    "oldQueueWaitMs": 5000,
+    "newQueueWaitMs": 60000,
+    "timingScope": "Caller time surrounds the four awaited tool calls; gateway span excludes model reasoning and time outside the gateway. Neither is the complete chat-generation time.",
+    "requests": [
+      {
+        "label": "Python",
+        "arguments": {
+          "url": "https://docs.python.org/3/tutorial/appetite.html",
+          "formats": [
+            "markdown"
+          ],
+          "onlyMainContent": true,
+          "maxAge": 0,
+          "timeout": 45000
+        },
+        "argumentsSha256Canonical": "0236166f8528df8fcc5f0eee72d884114cb2d0bfd57fce7eb9c394828debe579",
+        "expectedContent": [
+          "Whetting Your Appetite",
+          "Python"
+        ],
+        "historicalResult": {
+          "httpStatus": 200,
+          "allAnchorsPresent": true,
+          "markdownCharacters": 7635
+        }
+      },
+      {
+        "label": "React",
+        "arguments": {
+          "url": "https://react.dev/learn",
+          "formats": [
+            "markdown"
+          ],
+          "onlyMainContent": true,
+          "maxAge": 0,
+          "timeout": 45000
+        },
+        "argumentsSha256Canonical": "3848fe185735c109442f29156f3d5597a2fdb8a828ecbaa71813868e8165fa55",
+        "expectedContent": [
+          "Quick Start",
+          "components"
+        ],
+        "historicalResult": {
+          "httpStatus": 200,
+          "allAnchorsPresent": true,
+          "markdownCharacters": 19751
+        }
+      },
+      {
+        "label": "MDN Promise",
+        "arguments": {
+          "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise",
+          "formats": [
+            "markdown"
+          ],
+          "onlyMainContent": true,
+          "maxAge": 0,
+          "timeout": 45000
+        },
+        "argumentsSha256Canonical": "bdfc89d3398758eaabeec8f5db7b3d67d230c2880ef1d2579abfecd491e3f6f5",
+        "expectedContent": [
+          "Promise",
+          "fulfilled"
+        ],
+        "historicalResult": {
+          "httpStatus": 200,
+          "allAnchorsPresent": true,
+          "markdownCharacters": 33290
+        }
+      },
+      {
+        "label": "Firecrawl self-hosting",
+        "arguments": {
+          "url": "https://docs.firecrawl.dev/contributing/self-host",
+          "formats": [
+            "markdown"
+          ],
+          "onlyMainContent": true,
+          "maxAge": 0,
+          "timeout": 45000
+        },
+        "argumentsSha256Canonical": "8815d5b6fbb506a73c6e968595bdda434471175c6cfe14a3ce7b502228205a22",
+        "expectedContent": [
+          "Self",
+          "Docker"
+        ],
+        "historicalResult": {
+          "httpStatus": 200,
+          "allAnchorsPresent": true,
+          "markdownCharacters": 15367
+        }
+      }
+    ]
+  },
+  "additionalConnectedReaderChecks": {
+    "multiFormatRead": "passed",
+    "pdfLimit": "two of nine pages; later sections absent",
+    "Q084FinancialConversions": "four crore-to-rupee conversions matched returned source cells",
+    "caveats": [
+      "Python output retained navigation",
+      "PDF response included an unsupported engine-option warning despite that option being omitted",
+      "Per-response private timing metadata was not visible to the client; gateway logs independently established overlap"
+    ]
+  },
+  "notDistributed": [
+    "Private account identifiers and receipts",
+    "Owner credentials, OAuth state, private domain configuration",
+    "Raw page captures, screenshots, imported report PDF and complete private session ledger"
+  ],
+  "notATotalPassCount": "The 217 historical attempts include failures and quota blocks. They are distinct from the 130 automated framework tests run on this public source snapshot."
+}

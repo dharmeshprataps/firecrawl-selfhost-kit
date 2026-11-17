@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "official_tools": {
+    "firecrawl_scrape": {
+      "enabled": true,
+      "status": "verified",
+      "summary": "Read a supplied URL; Markdown and JavaScript rendering verified."
+    },
+    "firecrawl_map": {
+      "enabled": true,
+      "status": "verified",
+      "summary": "Discover supplied site URLs; sitemap mapping verified."
+    },
+    "firecrawl_crawl": {
+      "enabled": true,
+      "status": "verified",
+      "summary": "Collect bounded pages; five-page completion verified."
+    },
+    "firecrawl_check_crawl_status": {
+      "enabled": true,
+      "status": "verified",
+      "summary": "Read local crawl status and results."
+    },
+    "firecrawl_search": {
+      "enabled": true,
+      "status": "verified",
+      "summary": "Find public web sources using local SearXNG; coverage depends on upstream search engines."
+    }
+  },
+  "scrape_policy": {
+    "formats": [
+      "markdown",
+      "html",
+      "rawHtml",
+      "links",
+      "images",
+      "json",
+      "summary",
+      "screenshot"
+    ],
+    "actions": [
+      "wait",
+      "click",
+      "write",
+      "press",
+      "scroll",
+      "scrape",
+      "screenshot"
+    ],
+    "json_extraction": true
+  },
+  "features": {
+    "website_monitors": {
+      "status": "local-alternative",
+      "summary": "Manual hashes/excerpt checks, no scheduling or notifications."
+    },
+    "json_extraction": {
+      "status": "verified-with-limitations",
+      "summary": "Supported latest/previous quarterly sales and net-profit schemas use source-row/column evidence. Explicit INR crore-to-rupee scaling is exact and separately records sourceValue, sourceUnit, outputUnit and conversion proof. Ambiguous scales, FX, derived calculations and unsupported required fields fail explicitly. Generic model JSON remains semantically unverified."
+    },
+    "browser_actions": {
+      "status": "verified",
+      "summary": "Bounded Playwright actions."
+    },
+    "hosted_indexes": {
+      "status": "unavailable",
+      "summary": "Specialized hosted indexes are not mirrored."
+    },
+    "people_company_data": {
+      "status": "unavailable",
+      "summary": "Commercial enrichment is not configured."
+    },
+    "hosted_agent": {
+      "status": "unavailable",
+      "summary": "The chat assistant can orchestrate local tools; hosted agent is not exposed."
+    },
+    "cloud_billing": {
+      "status": "unavailable",
+      "summary": "No paid Cloud account or credits."
+    },
+    "css_attributes": {
+      "status": "verified",
+      "summary": "Bounded public page CSS attributes through local_web_attributes."
+    },
+    "batch_scrape": {
+      "status": "verified",
+      "summary": "At most five public page reads with two concurrent local requests, target HTTP status and explicit incomplete-content checks. Optional bounded maxAge, storeInCache, timeout and onlyMainContent apply uniformly to every URL; explicit maxAge:0 requests fresh content.",
+      "defaults": {
+        "maxAge": 0,
+        "storeInCache": true,
+        "timeout": 15000,
+        "onlyMainContent": true
+      },
+      "limits": {
+        "urls": 5,
+        "concurrency": 2,
+        "maxAgeMs": 604800000,
+        "perPageTimeoutMs": [
+          1000,
+          20000
+        ]
+      }
+    },
+    "pdf_text": {
+      "status": "verified",
+      "summary": "Native Rust extraction verified on a text PDF; OCR and complex layouts are untested."
+    },
+    "search_provider": {
+      "status": "verified-with-limitations",
+      "summary": "Web search returns useful results; upstream public engines can rate-limit or refuse queries. Map inventory can be incomplete."
+    },
+    "content_readiness": {
+      "status": "local-alternative",
+      "summary": "Conservative loading-table/HTTP checks and optional expectedContent assertions; these do not verify numerical accuracy."
+    },
+    "read_only_scrape": {
+      "status": "available-for-verification",
+      "tool": "local_web_read",
+      "summary": "Full-format read-only public-page retrieval through the pinned official scraper. Supports the reviewed read formats, JSON, PDF page limits, screenshots, cache and content checks. Rejects all browser actions, saved profiles, sessions and provider options; use firecrawl_scrape for explicit interactions. Independent calls share existing local concurrency limits."
+    }
+  }
+}

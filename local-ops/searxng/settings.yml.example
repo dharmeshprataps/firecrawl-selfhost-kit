@@ -1,0 +1,19 @@
+use_default_settings:
+  engines:
+    keep_only: [brave, duckduckgo, bing, google, wikipedia, arxiv, github]
+general:
+  debug: false
+  instance_name: Firecrawl Local Search
+search:
+  safe_search: 1
+  formats: [html, json]
+server:
+  secret_key: REPLACE_WITH_GENERATED_SECRET
+  limiter: false
+  image_proxy: false
+  method: GET
+outgoing:
+  request_timeout: 5.0
+  max_request_timeout: 8.0
+  pool_connections: 20
+  pool_maxsize: 20

@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Prepare the isolated, keyless search/inference providers on the reviewed Mac."""
+import json,os,platform,plistlib,subprocess,time,urllib.request,urllib.error
+from pathlib import Path
+from launchd_config import render_agent
+r=Path(__file__).resolve().parents[1];os.umask(0o077)
+assert platform.system()=='Darwin' and platform.machine()=='arm64','Native Apple Silicon Mac required'
+lock=json.loads((r/'local-ops/provider-lock.json').read_text());config=r/'.local-state/searxng/settings.yml';config.parent.mkdir(parents=True,exist_ok=True)
+if not config.exists():
+ import secrets
+ template=(r/'local-ops/searxng/settings.yml.example').read_text();assert template.count('REPLACE_WITH_GENERATED_SECRET')==1
+ config.write_text(template.replace('REPLACE_WITH_GENERATED_SECRET',secrets.token_hex(32)));config.chmod(0o600)
+assert config.stat().st_mode&0o777==0o600,'Search configuration must be private0600'
+source=r/'local-ops/schedulers/com.localcrawler.inference.plist';data=render_agent(source,root=r);rendered=plistlib.dumps(data)
+assert data['EnvironmentVariables']['OLLAMA_HOST']=='127.0.0.1:11435' and data['EnvironmentVariables']['OLLAMA_NO_CLOUD']=='1'
+assert Path(data['ProgramArguments'][0]).is_file(),'Native Ollama executable missing; install and review the pinned version first'
+uid=str(os.getuid());label=data['Label'];agent=Path.home()/'Library/LaunchAgents'/source.name
+agent.parent.mkdir(parents=True,exist_ok=True)
+(r/'local-bench/var').mkdir(parents=True,exist_ok=True,mode=0o700)
+loaded=subprocess.run(['/bin/launchctl','print','gui/'+uid+'/'+label],capture_output=True)
+if loaded.returncode:
+ if agent.exists():assert agent.read_bytes()==rendered,'Review differing existing inference agent'
+ else:agent.write_bytes(rendered);agent.chmod(0o600)
+ subprocess.run(['/bin/launchctl','enable','gui/'+uid+'/'+label],check=True);subprocess.run(['/bin/launchctl','bootstrap','gui/'+uid,str(agent)],check=True)
+print('Pulling pinned native search image',flush=True)
+subprocess.run(['/opt/homebrew/bin/docker','--context','colima-firecrawl','pull','--platform','linux/arm64',lock['searxng']['image']],check=True)
+for attempt in range(30):
+ try:
+  with urllib.request.urlopen('http://127.0.0.1:11435/api/version',timeout=2) as response:version=json.load(response)['version']
+  break
+ except (urllib.error.URLError,TimeoutError):
+  if attempt==29:raise RuntimeError('Isolated inference did not become ready; inspect inference logs')
+  time.sleep(1)
+assert version==lock['ollama']['version'],'Inference version changed; review provider-lock.json'
+print('Ensuring pinned local model is present (no cloud models)',flush=True)
+request=urllib.request.Request('http://127.0.0.1:11435/api/pull',data=json.dumps({'model':lock['ollama']['model'],'stream':False}).encode(),headers={'Content-Type':'application/json'})
+with urllib.request.urlopen(request,timeout=900) as response:assert json.load(response).get('status')=='success'
+with urllib.request.urlopen('http://127.0.0.1:11435/api/tags',timeout=10) as response:models=json.load(response)['models']
+assert any(m['name']==lock['ollama']['model'] and m['digest']==lock['ollama']['model_digest'] for m in models),'Model digest differs from reviewed lock'
+print('Private search configuration, native image, isolated inference and model digest verified')

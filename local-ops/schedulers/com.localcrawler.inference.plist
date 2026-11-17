@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>OLLAMA_CONTEXT_LENGTH</key>
+		<string>8192</string>
+		<key>OLLAMA_HOST</key>
+		<string>127.0.0.1:11435</string>
+		<key>OLLAMA_KEEP_ALIVE</key>
+		<string>30s</string>
+		<key>OLLAMA_MAX_LOADED_MODELS</key>
+		<string>1</string>
+		<key>OLLAMA_MODELS</key>
+		<string>__HOME__/.ollama/models</string>
+		<key>OLLAMA_NO_CLOUD</key>
+		<string>1</string>
+		<key>OLLAMA_NUM_PARALLEL</key>
+		<string>1</string>
+		<key>PATH</key>
+		<string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<false/>
+	</dict>
+	<key>Label</key>
+	<string>com.localcrawler.inference</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>__OLLAMA__</string>
+		<string>serve</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>__CHECKOUT__/local-bench/var/inference.err.log</string>
+	<key>StandardOutPath</key>
+	<string>__CHECKOUT__/local-bench/var/inference.out.log</string>
+	<key>ThrottleInterval</key>
+	<integer>30</integer>
+	<key>WorkingDirectory</key>
+	<string>__CHECKOUT__</string>
+</dict>
+</plist>

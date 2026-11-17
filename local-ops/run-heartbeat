@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+for attempt in $(seq 1 90); do
+  if /usr/bin/curl --fail --silent --max-time 3 http://127.0.0.1:3012/v0/health/readiness >/dev/null; then break; fi
+  sleep 2
+done
+exec /opt/homebrew/bin/python3 "$ROOT/local-bench/production-heartbeat.py"

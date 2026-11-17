@@ -1,0 +1,11 @@
+{
+  "name": "local-firecrawl-mcp-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "firecrawl-mcp": "3.36.1"
+  }
+}

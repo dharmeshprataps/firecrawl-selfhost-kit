@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+umask 077
+export PATH="/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+ROOT="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+# The isolated inference agent has no model loaded while idle.
+/bin/launchctl kickstart "gui/$(id -u)/com.localcrawler.inference" >/dev/null 2>&1 || true
+/opt/homebrew/bin/colima start firecrawl --activate=false
+for attempt in $(seq 1 90); do
+  if /opt/homebrew/bin/docker --context colima-firecrawl info >/dev/null 2>&1; then
+    exec "$ROOT/local-ops/firecrawl-local" start
+  fi
+  sleep 2
+done
+echo 'Dedicated Docker runtime did not become ready' >&2
+exit 1

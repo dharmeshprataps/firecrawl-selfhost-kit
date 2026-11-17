@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Literal code regression fixture</title></head><body><main>
+<h1>code-fidelity-marker-7431</h1>
+<p>Inline Python: <code>a &lt; b &amp;&amp; c &gt;= 0</code>. Entity literal: <code>&amp;lt;</code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span>,
+]
+print(values[0])
+</pre></div></div>
+<h2>React syntax</h2>
+<pre><code class="language-jsx"><span class="line">export function App() {</span><span class="line">  return &lt;button onClick={() =&gt; setN(n + 1)}&gt;Next &amp; more&lt;/button&gt;;</span><span class="line">}</span></code></pre>
+<p>Fixture code only; no scripts execute.</p>
+</main></body></html>

@@ -1,0 +1,10 @@
+[Unit]
+Description=Bounded Firecrawl regression heartbeat
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/firecrawl-local
+ExecStart=/usr/bin/python3 /opt/firecrawl-local/local-bench/heartbeat.py
+RuntimeMaxSec=6000
+Nice=10

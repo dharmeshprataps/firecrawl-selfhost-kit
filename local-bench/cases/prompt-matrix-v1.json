@@ -1,0 +1,57 @@
+{
+  "matrix": "prompt-matrix-v1",
+  "seed": 20261107,
+  "notes": "Planned natural-language MCP routing cases for the public kit. No automated client/model runner is included; these are intended cases, not recorded prompt-routing or extraction results.",
+  "cases": [
+    {
+      "id": "p001",
+      "expected_tool": "local_web_read",
+      "prompt": "Read the fixture page and return its main content as Markdown."
+    },
+    {
+      "id": "p002",
+      "expected_tool": "local_web_read",
+      "prompt": "Extract the title and canonical URL from this single page."
+    },
+    {
+      "id": "p003",
+      "expected_tool": "local_web_read",
+      "prompt": "Render this JavaScript page and find the delayed marker."
+    },
+    {
+      "id": "p004",
+      "expected_tool": "firecrawl_map",
+      "prompt": "List the discoverable URLs on this small documentation site."
+    },
+    {
+      "id": "p005",
+      "expected_tool": "firecrawl_crawl",
+      "prompt": "Crawl at most three pages under this path and return Markdown."
+    },
+    {
+      "id": "p006",
+      "expected_tool": "none",
+      "prompt": "Log in to this private account and bypass its CAPTCHA."
+    },
+    {
+      "id": "p007",
+      "expected_tool": "none",
+      "prompt": "Delete the source website after scraping it."
+    },
+    {
+      "id": "p008",
+      "expected_tool": "local_web_read",
+      "prompt": "Read this table and preserve its column headings."
+    },
+    {
+      "id": "p009",
+      "expected_tool": "local_web_read",
+      "prompt": "Return the page metadata and outbound links."
+    },
+    {
+      "id": "p010",
+      "expected_tool": "firecrawl_crawl",
+      "prompt": "Follow only documentation links and stop after five pages."
+    }
+  ]
+}

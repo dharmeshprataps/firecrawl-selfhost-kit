@@ -1,3 +1,5 @@
+> **Archived standalone snapshot.** Active development has moved to [the official upstream fork](https://github.com/dharmeshprataps/firecrawl-local-fork). Use its [self-hosting guide](https://github.com/dharmeshprataps/firecrawl-local-fork/blob/main/SELFHOST_KIT.md) and [testing details](https://github.com/dharmeshprataps/firecrawl-local-fork/blob/main/docs/TESTING.md). This repository preserves the historical v0.1.0 source, history and release.
+
 # Firecrawl Self-host Kit
 
 A community-maintained, local-first distribution of [Firecrawl](https://github.com/firecrawl/firecrawl). Run your own scraping API, browser renderer, search service and MCP tools on an Apple Silicon Mac.
